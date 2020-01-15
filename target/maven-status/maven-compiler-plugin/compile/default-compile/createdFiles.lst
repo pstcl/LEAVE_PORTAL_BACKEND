@@ -1,0 +1,11 @@
+org\pstcl\portal\leave\config\JacksonConfig.class
+org\pstcl\portal\leave\security\SecurityConfig.class
+org\pstcl\portal\leave\httpclient\HTTPService.class
+org\pstcl\portal\leave\model\Employee.class
+org\pstcl\portal\leave\repository\EmployeeRepository.class
+org\pstcl\portal\leave\LeavePortalApplication.class
+org\pstcl\portal\leave\util\GlobalProperties.class
+org\pstcl\portal\leave\controller\HTTPController.class
+org\pstcl\portal\leave\httpclient\PseudoService.class
+org\pstcl\portal\leave\controller\PseudoController.class
+org\pstcl\portal\leave\security\CustomAuthenticationProvider.class

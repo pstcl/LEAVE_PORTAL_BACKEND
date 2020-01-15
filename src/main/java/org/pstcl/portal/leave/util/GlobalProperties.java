@@ -37,11 +37,22 @@ public class GlobalProperties {
 	@Value("${employee.service.password}")
 	private String apiPassword;
 
-//
-//	
-//	employee.service.username = api_pstcl
-//			employee.service.password = amritsarpatiala
-//			 =/api/EmployeeAuthenticate
+	@Getter
+	@Setter
+	@Value("${employee.service.uri.employee.details}")
+	private String employeeDetailsUrl;
+	
+	@Getter
+	@Setter
+	@Value("${employee.service.uri.ddo.employees}")
+	private String employeesByDDOUrl;
+
+	
+	@Getter
+	@Setter
+	@Value("${employee.service.authorization.header.name}")
+	private String authorizationHeaderName;
+	
 
 }
 
