@@ -3,9 +3,12 @@ package org.pstcl.portal.leave.security;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.annotation.PreDestroy;
 
+import org.pstcl.portal.leave.mvc.model.User;
+import org.pstcl.portal.leave.repository.UserMongoRepository;
 import org.pstcl.portal.leave.util.GlobalProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -21,6 +24,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import com.jayway.jsonpath.Option;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
@@ -44,8 +49,13 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
 
 
+
 		String username = authentication.getName();
 		String password = authentication.getCredentials().toString();
+
+		logger.error("Username"+username);
+		logger.error("Password"+password);
+		//		
 
 		if (authorizeEmployee(username,password)) {
 
@@ -69,8 +79,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	}
 
 
-
-
+	@Autowired
+	private UserMongoRepository userMongoRepository;
 
 	public Boolean authorizeEmployee(String empid, String employeePassword)
 	{
@@ -79,6 +89,28 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		String url = globalProperties.getServer()+globalProperties.getAuthenticationUrl(); 
 		logger.info("Accessing URL    "+ url);
 		String apiCredential = "Basic " + globalProperties.getApiUsername() + ":" + globalProperties.getApiPassword() + ":" + empid + ":" + employeePassword;
+		//logger.info("Basic Token    "+ apiCredential);
+
+
+		//DELETE before DEPloying
+		//DELETE before DEPloying
+		//DELETE before DEPloying
+		//DELETE before DEPloying
+		//DELETE before DEPloying
+		//DELETE before DEPloying
+		//DELETE before DEPloying STARTS
+		Optional<User> user= userMongoRepository.findById(empid);
+		if(user.isPresent())
+		{
+
+			authenticated=(user.get().getPassword().compareTo(employeePassword)==0);
+			logger.info("USER authenticated locally");
+		}
+		//DELETE before DEPloying ENDS
+		//DELETE before DEPloying ENDS		//DELETE before DEPloying ENDS		//DELETE before DEPloying ENDS
+
+
+
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		headers.set(globalProperties.getAuthorizationHeaderName(), apiCredential);
@@ -88,7 +120,18 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		{
 			authenticated=true;
 			logger.info("USER authenticated");
+			//DELETE before DEPloying
+			//DELETE before DEPloying
+			//DELETE before DEPloying STARTS
+			userMongoRepository.save(new User(empid,employeePassword));	
+			//DELETE before DEPloying ENDS
+			//DELETE before DEPloying ENDS		
+			//DELETE before DEPloying ENDS		
+			//DELETE before DEPloying ENDS
+
 		}
+
+
 		return authenticated;
 	}
 	@PreDestroy

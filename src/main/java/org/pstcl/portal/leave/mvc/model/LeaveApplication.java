@@ -1,7 +1,9 @@
 package org.pstcl.portal.leave.mvc.model;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -9,7 +11,6 @@ import org.pstcl.portal.leave.config.id.exposure.IdExposable;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;

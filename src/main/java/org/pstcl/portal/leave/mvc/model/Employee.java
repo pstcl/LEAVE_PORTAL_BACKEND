@@ -11,7 +11,7 @@ import lombok.Data;
 public class Employee {		  
 
 	@Id
-	private Integer empId;
+	private String empId;
 	private String fullName;
 	private String firstName;
 	private String middleName;

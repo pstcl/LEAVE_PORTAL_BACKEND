@@ -19,16 +19,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Service
-public class HTTPService {
+//@Service
+public class HTTPServiceFinal implements HTTPService {
 
 	//	1. Employee:                          https://hrapipstcl.pspcl.in/api/employee/504002
 	//	2. DDO:                                  https://hrapipstcl.pspcl.in/api/ddo/202
 	//	3. EmployeeAuthenticate:      https://hrapipstcl.pspcl.in/api/EmployeeAuthenticate
 
-	@Autowired
-	private GlobalProperties globalProperties;
 
+	@Autowired
+ private GlobalProperties globalProperties;
 
 	private HttpEntity<String> setHeader() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -56,7 +56,7 @@ public class HTTPService {
 
 	private RestTemplate restTemplate;
 
-	public HTTPService(	RestTemplateBuilder restTemplateBuilder)
+	public HTTPServiceFinal(	RestTemplateBuilder restTemplateBuilder)
 	{
 		this.restTemplate = restTemplateBuilder
 				.setConnectTimeout(Duration.ofSeconds(500))
@@ -86,31 +86,30 @@ public class HTTPService {
 	//		return response;
 	//	}
 
+	@Override
 	public Employee getLoggedInEmployee()
 	{
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		return employeeDetails(auth.getName()).getBody()[0];
+		return employeeDetails(auth.getName());
 
 	}
 
 
-	public ResponseEntity<Employee[]>  employeeDetails(String employeCode)
+	@Override
+	public Employee  employeeDetails(String employeCode)
 	{
 		String url = globalProperties.getServer()+globalProperties.getEmployeeDetailsUrl(); 
-
 		//	String url = "https://hrapipstcl.pspcl.in/api/employee/{empid}";
 		HttpEntity<String> entity = setHeader();
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("empid", employeCode);
 		ResponseEntity<Employee[]> response= restTemplate.exchange(url,HttpMethod.GET,entity,Employee[].class,params);
-
 		//ResponseEntity<Employee> employee= restTemplate.fo(url,HttpMethod.GET,entity,String.class,params);
-
-
-		return response;
+		return response.getBody()[0];
 	}
 
 
+	@Override
 	public 	ResponseEntity<String> ddoDetails(String ddocode)
 	{
 		String url = globalProperties.getServer()+globalProperties.getEmployeesByDDOUrl(); 

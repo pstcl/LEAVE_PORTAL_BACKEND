@@ -44,7 +44,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	                .anyRequest().authenticated()
 	                .and()
 	            //.formLogin().and()
-	            .httpBasic();
+	            .httpBasic()
+	            .and()
+	    		.logout() // This is missing and is important
+	    		.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+	    		.logoutSuccessUrl("/login");;
 	    }
 	
 	

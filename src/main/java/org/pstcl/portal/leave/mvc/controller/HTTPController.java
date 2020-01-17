@@ -53,7 +53,7 @@ public class HTTPController {
 	
 	@CrossOrigin(allowCredentials="true")
 	@GetMapping(value = "/bpi/employee/{empid}",  produces = "application/json") 
-	public  ResponseEntity<Employee[]>  getEmployee(@PathVariable("empid") String employeeCode,HttpServletResponse response,HttpServletRequest request) {
+	public  Employee  getEmployee(@PathVariable("empid") String employeeCode,HttpServletResponse response,HttpServletRequest request) {
 		
 		return httpService.employeeDetails(employeeCode);
 	}
