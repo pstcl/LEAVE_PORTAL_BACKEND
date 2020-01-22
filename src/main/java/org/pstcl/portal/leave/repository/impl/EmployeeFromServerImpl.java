@@ -1,7 +1,7 @@
 package org.pstcl.portal.leave.repository.impl;
 
 import org.pstcl.portal.leave.mvc.model.Employee;
-import org.pstcl.portal.leave.mvc.service.HTTPService;
+import org.pstcl.portal.leave.mvc.service.HRDataService;
 import org.pstcl.portal.leave.repository.EmployeeFromServer;
 import org.springframework.beans.factory.annotation.Autowired;
 

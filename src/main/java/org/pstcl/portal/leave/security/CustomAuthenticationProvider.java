@@ -62,7 +62,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 			// use the credentials
 			// and authenticate against the third-party system
 			return new UsernamePasswordAuthenticationToken(
-					username, password, new ArrayList<>());
+					new User(	username, password), password, new ArrayList<>());
 		} else {
 			logger.error("USER Authentication failed");
 			return null;
@@ -86,9 +86,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	{
 		Boolean authenticated=false;
 
-		String url = globalProperties.getServer()+globalProperties.getAuthenticationUrl(); 
-		logger.info("Accessing URL    "+ url);
-		String apiCredential = "Basic " + globalProperties.getApiUsername() + ":" + globalProperties.getApiPassword() + ":" + empid + ":" + employeePassword;
+
 		//logger.info("Basic Token    "+ apiCredential);
 
 
@@ -105,32 +103,44 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
 			authenticated=(user.get().getPassword().compareTo(employeePassword)==0);
 			logger.info("USER authenticated locally");
+
+
 		}
 		//DELETE before DEPloying ENDS
 		//DELETE before DEPloying ENDS		//DELETE before DEPloying ENDS		//DELETE before DEPloying ENDS
 
 
+		else {
+			HttpHeaders headers = new HttpHeaders();
+			String url = globalProperties.getServer()+globalProperties.getAuthenticationUrl(); 
+			logger.info("Accessing URL    "+ url);
+			
+			String apiCredential = "Basic " + globalProperties.getApiUsername() + ":" + globalProperties.getApiPassword() + ":" + empid + ":" + employeePassword;
+			headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+			headers.set(globalProperties.getAuthorizationHeaderName(), apiCredential);
+			HttpEntity<String> entity = new HttpEntity<>("body", headers);
+			ResponseEntity<String> response= restTemplate.exchange(url,HttpMethod.GET,entity,String.class,0);
+			if(response.getBody().toUpperCase().equalsIgnoreCase("TRUE"))
+			{
+				authenticated=true;
+				logger.info("USER authenticated");
+				//DELETE before DEPloying
+				//DELETE before DEPloying
+				//DELETE before DEPloying STARTS
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		headers.set(globalProperties.getAuthorizationHeaderName(), apiCredential);
-		HttpEntity<String> entity = new HttpEntity<>("body", headers);
-		ResponseEntity<String> response= restTemplate.exchange(url,HttpMethod.GET,entity,String.class,0);
-		if(response.getBody().toUpperCase().equalsIgnoreCase("TRUE"))
-		{
-			authenticated=true;
-			logger.info("USER authenticated");
-			//DELETE before DEPloying
-			//DELETE before DEPloying
-			//DELETE before DEPloying STARTS
-			userMongoRepository.save(new User(empid,employeePassword));	
-			//DELETE before DEPloying ENDS
-			//DELETE before DEPloying ENDS		
-			//DELETE before DEPloying ENDS		
-			//DELETE before DEPloying ENDS
+				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
+				System.out.println( "Basic " + globalProperties.getApiUsername() + ":" + globalProperties.getApiPassword() + ":" + auth.getPrincipal() + ":" +  auth.getCredentials());
+
+
+				userMongoRepository.save(new User(empid,employeePassword));	
+				//DELETE before DEPloying ENDS
+				//DELETE before DEPloying ENDS		
+				//DELETE before DEPloying ENDS		
+				//DELETE before DEPloying ENDS
+
+			}
 		}
-
 
 		return authenticated;
 	}

@@ -14,29 +14,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PseudoController {
 	
-	@Autowired
-	private PseudoService httpService;
-	
-	@CrossOrigin(allowCredentials="true")
-	@GetMapping(value = "/api/EmployeeAuthenticate") 
-	public ResponseEntity<String> authorizeEmployee(HttpServletResponse response,HttpServletRequest request)
-	{
-		return httpService.authorizeEmployee(request); 
-	}
-	
-	
-	@CrossOrigin(allowCredentials="true")
-	@GetMapping(value = "/api/employee/{empid}",  produces = "application/json") 
-	public  ResponseEntity<String>  getEmployee(@PathVariable("empid") String employeeCode,HttpServletResponse response,HttpServletRequest request) {
-		
-		return httpService.employeeDetails(employeeCode,request);
-	}
-	
-	@CrossOrigin(allowCredentials="true")
-	@GetMapping(value = "/api/ddo/{ddocode}",  produces = "application/json") 
-	public  ResponseEntity<String>  getDdo(@PathVariable("ddocode") String ddoCode,HttpServletResponse response,HttpServletRequest request) {
-		
-		return httpService.ddoDetails(ddoCode,request);
-	}
+//	@Autowired
+//	private PseudoService httpService;
+//	
+//	@CrossOrigin(allowCredentials="true")
+//	@GetMapping(value = "/api/EmployeeAuthenticate") 
+//	public ResponseEntity<String> authorizeEmployee(HttpServletResponse response,HttpServletRequest request)
+//	{
+//		return httpService.authorizeEmployee(request); 
+//	}
+//	
+//	
+//	@CrossOrigin(allowCredentials="true")
+//	@GetMapping(value = "/api/employee/{empid}",  produces = "application/json") 
+//	public  ResponseEntity<String>  getEmployee(@PathVariable("empid") String employeeCode,HttpServletResponse response,HttpServletRequest request) {
+//		
+//		return httpService.employeeDetails(employeeCode,request);
+//	}
+//	
+//	@CrossOrigin(allowCredentials="true")
+//	@GetMapping(value = "/api/ddo/{ddocode}",  produces = "application/json") 
+//	public  ResponseEntity<String>  getDdo(@PathVariable("ddocode") String ddoCode,HttpServletResponse response,HttpServletRequest request) {
+//		
+//		return httpService.ddoDetails(ddoCode,request);
+//	}
 
 }

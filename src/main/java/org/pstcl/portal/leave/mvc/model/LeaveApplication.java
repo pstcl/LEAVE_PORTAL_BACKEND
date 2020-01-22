@@ -9,7 +9,10 @@ import javax.validation.constraints.NotEmpty;
 
 import org.pstcl.portal.leave.config.id.exposure.IdExposable;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -32,10 +35,11 @@ public class LeaveApplication {
 	}
 
 	public void setId(String id) {
-
+		this.id=id;
 	}
 
 	@NotEmpty
+	@DBRef
 	private Employee employee;
 
 
@@ -46,8 +50,6 @@ public class LeaveApplication {
 
 	public void setEmployee(Employee employee) {
 		this.employee = employee;
-		LocalDate localDate=LocalDate.now();
-		this.id = employee.getEmpId()+"_"+localDate.getYear()+"_"+localDate.getMonthValue()+"_"+localDate.getDayOfMonth();
 
 	}
 
@@ -57,6 +59,8 @@ public class LeaveApplication {
 
 	@Getter
 	@Setter	
-	private Integer status;
+	@JsonManagedReference 
+	@DBRef
+	private LeaveStatus status;
 
 }

@@ -1,32 +1,38 @@
 package org.pstcl.portal.leave.mvc.service;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.pstcl.portal.leave.mvc.model.Employee;
-import org.pstcl.portal.leave.repository.EmployeeRepository;
+import org.pstcl.portal.leave.mvc.model.User;
 import org.pstcl.portal.leave.util.GlobalProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Service(value = "HTTPService")
-public class HTTPServiceLocalTesting implements HTTPService{
+//@Service
+public class HRDataServiceImpl implements HRDataService {
 
 	//	1. Employee:                          https://hrapipstcl.pspcl.in/api/employee/504002
 	//	2. DDO:                                  https://hrapipstcl.pspcl.in/api/ddo/202
 	//	3. EmployeeAuthenticate:      https://hrapipstcl.pspcl.in/api/EmployeeAuthenticate
+
+
 
 
 	@Autowired
@@ -58,7 +64,7 @@ public class HTTPServiceLocalTesting implements HTTPService{
 
 	private RestTemplate restTemplate;
 
-	public HTTPServiceLocalTesting(	RestTemplateBuilder restTemplateBuilder)
+	public HRDataServiceImpl(	RestTemplateBuilder restTemplateBuilder)
 	{
 		this.restTemplate = restTemplateBuilder
 				.setConnectTimeout(Duration.ofSeconds(500))
@@ -68,7 +74,7 @@ public class HTTPServiceLocalTesting implements HTTPService{
 
 
 
-	org.slf4j.Logger logger=org.slf4j.LoggerFactory.getLogger(HTTPServiceLocalTesting.class);
+	org.slf4j.Logger logger=org.slf4j.LoggerFactory.getLogger(HRDataService.class);
 
 
 
@@ -88,6 +94,7 @@ public class HTTPServiceLocalTesting implements HTTPService{
 	//		return response;
 	//	}
 
+	@Override
 	public Employee getLoggedInEmployee()
 	{
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -96,52 +103,70 @@ public class HTTPServiceLocalTesting implements HTTPService{
 	}
 
 
-	@Autowired
-	EmployeeRepository employeeRepository;
-
+	@Override
 	public Employee  employeeDetails(String employeCode)
 	{
-		Employee  employee=null;
-		Optional<Employee> optional= employeeRepository.findById(employeCode);
-
-		if(optional.isPresent())
-		{
-			employee=optional.get();
-		}
-		else
-		{
-			employee = getEmployeeFromServerAndSaveToLocal(employeCode);
-		}
-		return employee;
-	}
-
-
-	private Employee getEmployeeFromServerAndSaveToLocal(String employeCode) {
-		Employee employee;
 		String url = globalProperties.getServer()+globalProperties.getEmployeeDetailsUrl(); 
+		//	String url = "https://hrapipstcl.pspcl.in/api/employee/{empid}";
 		HttpEntity<String> entity = setHeader();
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("empid", employeCode);
 		ResponseEntity<Employee[]> response= restTemplate.exchange(url,HttpMethod.GET,entity,Employee[].class,params);
-		employee= response.getBody()[0];
-
-		if(employee!=null)
-		{
-			employeeRepository.save(employee);
-		}
-		return employee;
+		//ResponseEntity<Employee> employee= restTemplate.fo(url,HttpMethod.GET,entity,String.class,params);
+		return response.getBody()[0];
 	}
 
 
+	@Override
 	public 	ResponseEntity<String> ddoDetails(String ddocode)
 	{
 		String url = globalProperties.getServer()+globalProperties.getEmployeesByDDOUrl(); 
+
+		//		String url = "https://hrapipstcl.pspcl.in/api/ddo/{ddocode}";
 		HttpEntity<String> entity = setHeader();
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("ddocode", ddocode);
 		ResponseEntity<String> response= restTemplate.exchange(url,HttpMethod.GET,entity,String.class,params);
 		return response;
 	}
+
+
+	@Override
+	public List<Employee> getContollingOfficer(String employeCode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List<Employee> getApprovingAuthority(String employeCode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List<Employee> getDDOForEmployee(String employeCode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List<Employee> getContollingOfficerForEmployee(String employeCode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List<Employee> getApprovingAuthorityForEmployee(String employeCode) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
 
 
 }
