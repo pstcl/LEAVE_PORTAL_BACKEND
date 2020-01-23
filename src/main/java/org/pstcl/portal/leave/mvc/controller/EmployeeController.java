@@ -25,10 +25,10 @@ public class EmployeeController {
 	}
 
 	@CrossOrigin(allowCredentials = "true")
-	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE,path = "/getContollingOfficer/{empid}")
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE,path = "/getControllingOfficer/{empid}")
 	public List<Employee> getContollingOfficer(@PathVariable("empid") String employeeCode)
 	{
-		return httpService.getContollingOfficerForEmployee(employeeCode);
+		return httpService.getControllingOfficerForEmployee(employeeCode);
 	}
 	@CrossOrigin(allowCredentials = "true")
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE,path = "/getApprovingAuthority/{empid}")

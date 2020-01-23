@@ -131,38 +131,63 @@ public class HRDataServiceImpl implements HRDataService {
 	}
 
 
-	@Override
-	public List<Employee> getContollingOfficer(String employeCode) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-
-	@Override
-	public List<Employee> getApprovingAuthority(String employeCode) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 
 	@Override
 	public List<Employee> getDDOForEmployee(String employeCode) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Employee> ddoList=new ArrayList<Employee>();
+		if(employeCode.equalsIgnoreCase("504001"))
+		{
+			ddoList.add(employeeDetails("504005"));
+		}
+		else if(employeCode.equalsIgnoreCase("504003"))
+		{
+			ddoList.add(employeeDetails("504001"));
+		}
+		else
+		{
+			ddoList.add(employeeDetails("504003"));
+		}
+		return ddoList;
 	}
 
 
 	@Override
-	public List<Employee> getContollingOfficerForEmployee(String employeCode) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Employee> getControllingOfficerForEmployee(String employeCode) {
+		List<Employee> ddoList=new ArrayList<Employee>();
+		if(employeCode.equalsIgnoreCase("504001"))
+		{
+			ddoList.add(employeeDetails("504005"));
+		}
+		else if(employeCode.equalsIgnoreCase("504003"))
+		{
+			ddoList.add(employeeDetails("504005"));
+		}
+		else
+		{
+			ddoList.add(employeeDetails("504003"));
+		}
+		return ddoList;
 	}
 
 
 	@Override
 	public List<Employee> getApprovingAuthorityForEmployee(String employeCode) {
-		// TODO Auto-generated method stub
-		return null;
+		List<Employee> ddoList=new ArrayList<Employee>();
+		if(employeCode.equalsIgnoreCase("504001"))
+		{
+			ddoList.add(employeeDetails("504005"));
+		}
+		else if(employeCode.equalsIgnoreCase("504003"))
+		{
+			ddoList.add(employeeDetails("504005"));
+		}
+		else
+		{
+			ddoList.add(employeeDetails("504003"));
+		}
+		return ddoList;
 	}
 
 

@@ -25,8 +25,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.jayway.jsonpath.Option;
-
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 
@@ -127,12 +125,6 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 				//DELETE before DEPloying
 				//DELETE before DEPloying
 				//DELETE before DEPloying STARTS
-
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-				System.out.println( "Basic " + globalProperties.getApiUsername() + ":" + globalProperties.getApiPassword() + ":" + auth.getPrincipal() + ":" +  auth.getCredentials());
-
-
 				userMongoRepository.save(new User(empid,employeePassword));	
 				//DELETE before DEPloying ENDS
 				//DELETE before DEPloying ENDS		

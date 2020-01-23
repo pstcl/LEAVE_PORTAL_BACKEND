@@ -49,6 +49,14 @@ public class LeaveStatus implements SequenceMarker
 		leaveStatus.markedTo=leaveApplication.getEmployee();
 		return leaveStatus;
 	}
+	
+	public static LeaveStatus LeaveStatusUpdated(LeaveApplication leaveApplication,LeaveStatus previousLeaveStatus) {
+		LeaveStatus leaveStatus = LeaveStatusFactory(leaveApplication);
+		leaveStatus.statusValue=GlobalConstants.STATUS_VALUE_UPDATED;
+		leaveStatus.previousStatus=previousLeaveStatus;
+		leaveStatus.markedTo=leaveApplication.getEmployee();
+		return leaveStatus;
+	}
 
 	private static LeaveStatus LeaveStatusFactory(LeaveApplication leaveApplication) {
 		LeaveStatus leaveStatus=new LeaveStatus();

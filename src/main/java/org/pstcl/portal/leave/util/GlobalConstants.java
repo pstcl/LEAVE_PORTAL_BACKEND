@@ -4,6 +4,7 @@ public class GlobalConstants {
 	
 	
 	public static Integer STATUS_VALUE_SAVED= 100;
+	public static Integer STATUS_VALUE_UPDATED= 110;
 	public static Integer STATUS_VALUE_SUBMITTED= 125;
 	public static Integer STATUS_VALUE_PENDING_WITH_THIS_OFFICE=150;
 	public static Integer STATUS_VALUE_FORWARDED_BY_THIS_OFFICE=200;

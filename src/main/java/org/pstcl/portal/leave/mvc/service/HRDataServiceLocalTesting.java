@@ -192,18 +192,7 @@ public class HRDataServiceLocalTesting implements HRDataService{
 	}
 
 
-	@Override
-	public List<Employee> getContollingOfficer(String employeCode) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	@Override
-	public List<Employee> getApprovingAuthority(String employeCode) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
 
 	@Override
@@ -214,7 +203,7 @@ public class HRDataServiceLocalTesting implements HRDataService{
 
 
 	@Override
-	public List<Employee> getContollingOfficerForEmployee(String employeCode) {
+	public List<Employee> getControllingOfficerForEmployee(String employeCode) {
 		// TODO Auto-generated method stub
 		return null;
 	}

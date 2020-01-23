@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.pstcl.portal.leave.mvc.model.Employee;
 import org.pstcl.portal.leave.mvc.model.LeaveApplication;
 import org.pstcl.portal.leave.mvc.model.LeaveApplicationStatusModel;
 import org.pstcl.portal.leave.mvc.model.LeaveStatus;
@@ -26,10 +27,6 @@ public class LeaveApplicationService {
 	@Autowired
 	private LeaveStatusRepository leaveStatusRepository;
 
-	public LeaveApplication saveLeaveApplication(LeaveApplication leaveApplication) {
-
-		return leaveApplicationRepository.save(leaveApplication);
-	}
 
 	public LeaveApplication getLeaveApplication(String leaveApplicationId)
 	{
@@ -54,19 +51,31 @@ public class LeaveApplicationService {
 		return leaveApplicationRepository.findAll();
 	}
 
+
+	@Autowired
+	private HRDataService hrDataService;
+
 	public LeaveApplication saveNewLeaveApplication(LeaveApplication leaveApplication) {
 
-		LocalDate localDate=LocalDate.now();
-		leaveApplication.setId(leaveApplication.getEmployee().getEmpId()+"_"+localDate.getYear()+"_"+localDate.getMonthValue()+"_"+localDate.getDayOfMonth());
-		setNewLeaveApplicationStatus(leaveApplication);
-		return leaveApplicationRepository.save(leaveApplication);
+		if(null!=leaveApplication.getEmployee()&&null!=leaveApplication.getEmployee().getEmpId())
+		{
+
+			Employee employee= hrDataService.employeeDetails(leaveApplication.getEmployee().getEmpId());
+			if(null!=employee)
+			{
+				LocalDate localDate=LocalDate.now();
+				leaveApplication.setId(leaveApplication.getEmployee().getEmpId()+"_"+localDate.getYear()+"_"+localDate.getMonthValue()+"_"+localDate.getDayOfMonth());
+
+				leaveApplication.setStatus(LeaveStatus.LeaveStatusSaved(leaveApplication));
+				leaveStatusRepository.save(leaveApplication.getStatus());
+				leaveApplication=leaveApplicationRepository.save(leaveApplication);
+			}
+		}
+
+		return leaveApplication;
 	}
 
-	private void setNewLeaveApplicationStatus(LeaveApplication leaveApplication) {
-		LeaveStatus leaveStatus=LeaveStatus.LeaveStatusSaved(leaveApplication);
-		leaveApplication.setStatus(leaveStatus);
-		leaveStatusRepository.save(leaveStatus);
-	}
+
 
 	public ResponseEntity<LeaveApplication> updateLeaveApplication(String id, LeaveApplication leaveApplication) {
 
@@ -78,9 +87,30 @@ public class LeaveApplicationService {
 			if(null==leaveApplication.getStatus()||leaveApplication.getStatus().getStatusValue().compareTo(GlobalConstants.STATUS_VALUE_SAVED)==0)
 			{
 
-				leaveApplication=leaveApplicationRepository.save(leaveApplication);
-				responseEntity= new ResponseEntity<LeaveApplication>(leaveApplication, new HttpHeaders(), HttpStatus.OK);
+				LeaveApplication savedEntity=leaveApplicationRepository.findById(leaveApplication.getId()).get();
+				if(null!=savedEntity)
+				{
 
+					savedEntity.setLeaveDetails(leaveApplication.getLeaveDetails());
+					if(null== savedEntity.getStatus())
+					{
+						leaveApplication.setStatus(LeaveStatus.LeaveStatusUpdated(leaveApplication, savedEntity.getStatus()));
+					}
+					else
+					{
+						leaveApplication.setStatus(LeaveStatus.LeaveStatusSaved(leaveApplication));
+
+					}
+					leaveStatusRepository.save(leaveApplication.getStatus());
+					leaveApplication=leaveApplicationRepository.save(savedEntity);
+					responseEntity= new ResponseEntity<LeaveApplication>(leaveApplication, new HttpHeaders(), HttpStatus.OK);
+
+				}
+				else
+				{
+
+					responseEntity=new  ResponseEntity<LeaveApplication>(leaveApplication, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+				}
 			}
 			else
 			{
