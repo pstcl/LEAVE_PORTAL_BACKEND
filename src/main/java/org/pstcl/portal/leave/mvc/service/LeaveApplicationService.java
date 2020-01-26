@@ -91,17 +91,18 @@ public class LeaveApplicationService {
 				if(null!=savedEntity)
 				{
 
-					savedEntity.setLeaveDetails(leaveApplication.getLeaveDetails());
+					//HERE UPDATION IS DONE TO THE OBJECT ALREADY in DB
+					savedEntity.updateThis(leaveApplication);
 					if(null== savedEntity.getStatus())
 					{
-						leaveApplication.setStatus(LeaveStatus.LeaveStatusUpdated(leaveApplication, savedEntity.getStatus()));
+						savedEntity.setStatus(LeaveStatus.LeaveStatusUpdated(leaveApplication, savedEntity.getStatus()));
 					}
 					else
 					{
-						leaveApplication.setStatus(LeaveStatus.LeaveStatusSaved(leaveApplication));
+						savedEntity.setStatus(LeaveStatus.LeaveStatusSaved(leaveApplication));
 
 					}
-					leaveStatusRepository.save(leaveApplication.getStatus());
+					leaveStatusRepository.save(savedEntity.getStatus());
 					leaveApplication=leaveApplicationRepository.save(savedEntity);
 					responseEntity= new ResponseEntity<LeaveApplication>(leaveApplication, new HttpHeaders(), HttpStatus.OK);
 
@@ -171,6 +172,12 @@ public class LeaveApplicationService {
 				leaveStatusOld.setStatusValue(GlobalConstants.STATUS_VALUE_SUBMITTED);
 
 			}
+			else			if(leaveStatusOld.getStatusValue().compareTo(GlobalConstants.STATUS_VALUE_PENDING_WITH_THIS_OFFICE)==0&&leaveStatus.getRecommended())
+			{
+				leaveStatusOld.setStatusValue(GlobalConstants.STATUS_VALUE_RECOMMENDED);
+
+			}
+
 			else
 			{
 				leaveStatusOld.setStatusValue(GlobalConstants.STATUS_VALUE_FORWARDED_BY_THIS_OFFICE);

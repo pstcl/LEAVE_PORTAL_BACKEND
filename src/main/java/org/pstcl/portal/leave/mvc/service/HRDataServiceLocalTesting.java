@@ -47,8 +47,7 @@ public class HRDataServiceLocalTesting implements HRDataService{
 
 		List<String> usersNamesList = new ArrayList();
 		
-		System.out.println("LOGGED IN USERS:-"+principals.size());
-
+		
 		for (Object principal: principals) {
 			 System.out.println( principal);
 		    if (principal instanceof User) {

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 
 @Data
-@Document
+@Document(collection = "leave-status")
 public class LeaveStatus implements SequenceMarker
 {
 	@Id
@@ -26,6 +26,11 @@ public class LeaveStatus implements SequenceMarker
 	@DBRef
 	@JsonBackReference
 	private LeaveApplication leaveApplication;
+	
+	private String remarks;
+
+	private Boolean recommended;
+	private Boolean withSubstitute;
 
 
 	@DBRef
