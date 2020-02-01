@@ -51,9 +51,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		String username = authentication.getName();
 		String password = authentication.getCredentials().toString();
 
-		logger.error("Username"+username);
-		logger.error("Password"+password);
-		//		
+			
 
 		if (authorizeEmployee(username,password)) {
 

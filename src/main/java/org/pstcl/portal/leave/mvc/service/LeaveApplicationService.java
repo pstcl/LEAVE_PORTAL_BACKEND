@@ -2,6 +2,7 @@ package org.pstcl.portal.leave.mvc.service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -66,8 +67,8 @@ public class LeaveApplicationService {
 				LocalDate localDate=LocalDate.now();
 				leaveApplication.setId(leaveApplication.getEmployee().getEmpId()+"_"+localDate.getYear()+"_"+localDate.getMonthValue()+"_"+localDate.getDayOfMonth());
 
-				leaveApplication.setStatus(LeaveStatus.LeaveStatusSaved(leaveApplication));
-				leaveStatusRepository.save(leaveApplication.getStatus());
+				leaveApplication.setLatestStatus(LeaveStatus.LeaveStatusSaved(leaveApplication));
+				leaveStatusRepository.save(leaveApplication.getLatestStatus());
 				leaveApplication=leaveApplicationRepository.save(leaveApplication);
 			}
 		}
@@ -84,7 +85,7 @@ public class LeaveApplicationService {
 		if(id.compareToIgnoreCase(leaveApplication.getId())==0)
 		{
 
-			if(null==leaveApplication.getStatus()||leaveApplication.getStatus().getStatusValue().compareTo(GlobalConstants.STATUS_VALUE_SAVED)==0)
+			if(null==leaveApplication.getLatestStatus()||leaveApplication.getLatestStatus().getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_SAVED)==0)
 			{
 
 				LeaveApplication savedEntity=leaveApplicationRepository.findById(leaveApplication.getId()).get();
@@ -93,16 +94,16 @@ public class LeaveApplicationService {
 
 					//HERE UPDATION IS DONE TO THE OBJECT ALREADY in DB
 					savedEntity.updateThis(leaveApplication);
-					if(null== savedEntity.getStatus())
+					if(null== savedEntity.getLatestStatus())
 					{
-						savedEntity.setStatus(LeaveStatus.LeaveStatusUpdated(leaveApplication, savedEntity.getStatus()));
+						savedEntity.setLatestStatus(LeaveStatus.LeaveStatusUpdated(leaveApplication, savedEntity.getLatestStatus()));
 					}
 					else
 					{
-						savedEntity.setStatus(LeaveStatus.LeaveStatusSaved(leaveApplication));
+						savedEntity.setLatestStatus(LeaveStatus.LeaveStatusSaved(leaveApplication));
 
 					}
-					leaveStatusRepository.save(savedEntity.getStatus());
+					leaveStatusRepository.save(savedEntity.getLatestStatus());
 					leaveApplication=leaveApplicationRepository.save(savedEntity);
 					responseEntity= new ResponseEntity<LeaveApplication>(leaveApplication, new HttpHeaders(), HttpStatus.OK);
 
@@ -137,7 +138,7 @@ public class LeaveApplicationService {
 		{
 			leaveApplication= findById.get();
 			leaveApplicationStatusModel.setLeaveApplication(leaveApplication);
-			LeaveStatus leaveStatus= leaveApplication.getStatus();
+			LeaveStatus leaveStatus= leaveApplication.getLatestStatus();
 			if(null!=leaveStatus)
 			{
 				leaveStatusList=new ArrayList<LeaveStatus>();
@@ -164,31 +165,102 @@ public class LeaveApplicationService {
 		if(findById.isPresent())
 		{
 			LeaveApplication leaveApplication= findById.get();
-			LeaveStatus leaveStatusNew=LeaveStatus.LeaveStatusForwarded(leaveApplication, leaveApplication.getStatus(),leaveStatus.getMarkedTo());
-			leaveStatusNew=leaveStatusRepository.save(leaveStatusNew);
-			LeaveStatus leaveStatusOld=leaveApplication.getStatus();
-			if(leaveStatusOld.getStatusValue().compareTo(GlobalConstants.STATUS_VALUE_SAVED)==0)
-			{
-				leaveStatusOld.setStatusValue(GlobalConstants.STATUS_VALUE_SUBMITTED);
 
-			}
-			else			if(leaveStatusOld.getStatusValue().compareTo(GlobalConstants.STATUS_VALUE_PENDING_WITH_THIS_OFFICE)==0&&leaveStatus.getRecommended())
+			if(null!=leaveStatus.getActionTaken()&&
+					leaveApplication.getLatestStatus().getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_APPROVED)!=0 &&
+					(leaveApplication.getLatestStatus().getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_REJECTED)!=0))
 			{
-				leaveStatusOld.setStatusValue(GlobalConstants.STATUS_VALUE_RECOMMENDED);
+				//inside this if leave is not approved or rejected 
+				if(leaveStatus.getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_FORWARDED_BY_THIS_OFFICE)==0
+						||leaveStatus.getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_RECOMMENDED_WITH_SUBSTITUTE)==0
+						||leaveStatus.getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_RECOMMENDED_WITHOUT_SUBSTITUTE)==0
+						||leaveStatus.getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_SUBMITTED)==0)
+				{
+					//Set Old status to action taken
+					LeaveStatus leaveStatusOld=leaveApplication.getLatestStatus();
+					leaveStatusOld.setRemarks(leaveStatus.getRemarks());
+					
+						leaveStatusOld.setActionTaken(leaveStatus.getActionTaken());
+							
+					
+					leaveStatusOld.setActionDateTime(new Date(System.currentTimeMillis()));
 
-			}
+					leaveStatusRepository.save(leaveStatusOld);
 
-			else
-			{
-				leaveStatusOld.setStatusValue(GlobalConstants.STATUS_VALUE_FORWARDED_BY_THIS_OFFICE);
+					//Set latest status to pending with new office		
+					LeaveStatus leaveStatusNew=LeaveStatus.LeaveStatusForwarded(leaveApplication, leaveStatusOld,leaveStatus);
+
+					leaveStatusNew=leaveStatusRepository.save(leaveStatusNew);
+
+
+					//set new status as latest status
+					leaveApplication.setLatestStatus(leaveStatusNew);
+					if(				
+							leaveStatus.getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_RECOMMENDED_WITH_SUBSTITUTE)==0
+							||leaveStatus.getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_RECOMMENDED_WITHOUT_SUBSTITUTE)==0)
+					{
+						leaveApplication.setRecommendationStatus(leaveStatusOld);
+
+					}
+					leaveApplication=					leaveApplicationRepository.save(leaveApplication);
+				}
+
+				else if(leaveStatus.getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_APPROVED)==0||leaveStatus.getActionTaken().compareTo(GlobalConstants.STATUS_VALUE_REJECTED)==0)
+				{
+					//Set Old status to action taken
+					LeaveStatus leaveStatusOld=leaveApplication.getLatestStatus();
+					leaveStatusOld.setRemarks(leaveStatus.getRemarks());
+					leaveStatusOld.setActionTaken(leaveStatus.getActionTaken());
+					leaveStatusOld.setActionDateTime(new Date(System.currentTimeMillis()));
+					leaveStatusRepository.save(leaveStatusOld);
+
+					
+					//set approval status 
+					leaveApplication.setApprovalStatus(leaveStatusOld);
+					leaveApplication=leaveApplicationRepository.save(leaveApplication);
+				}
+
+				
 			}
-			leaveStatusRepository.save(leaveStatusOld);
-			leaveApplication.setStatus(leaveStatusNew);
-			leaveApplicationRepository.save(leaveApplication);
 
 		}
 		return getLeaveApplicationStatus(leaveApplicationId);
 
 	}
 
+
+	/*
+	 * @Transactional public LeaveApplicationStatusModel
+	 * updateLeaveApplicationStatus(String leaveApplicationId, LeaveStatus
+	 * leaveStatus) {
+	 * 
+	 * Optional<LeaveApplication> findById =
+	 * leaveApplicationRepository.findById(leaveApplicationId);
+	 * if(findById.isPresent()) { LeaveApplication leaveApplication= findById.get();
+	 * LeaveStatus leaveStatusNew=LeaveStatus.LeaveStatusForwarded(leaveApplication,
+	 * leaveApplication.getStatus(),leaveStatus.getMarkedTo());
+	 * leaveStatusNew=leaveStatusRepository.save(leaveStatusNew); LeaveStatus
+	 * leaveStatusOld=leaveApplication.getStatus();
+	 * if(leaveStatusOld.getStatusValue().compareTo(GlobalConstants.
+	 * STATUS_VALUE_SAVED)==0&&leaveStatus.getStatusValue().equals(GlobalConstants.
+	 * STATUS_VALUE_SUBMITTED)) {
+	 * leaveStatusOld.setStatusValue(GlobalConstants.STATUS_VALUE_SUBMITTED);
+	 * 
+	 * } else if(leaveStatusOld.getStatusValue().compareTo(GlobalConstants.
+	 * STATUS_VALUE_PENDING_WITH_THIS_OFFICE)==0) {
+	 * leaveStatusOld.setStatusValue(GlobalConstants.
+	 * STATUS_VALUE_FORWARDED_BY_THIS_OFFICE);
+	 * 
+	 * }
+	 * 
+	 * else { leaveStatusOld.setStatusValue(GlobalConstants.
+	 * STATUS_VALUE_FORWARDED_BY_THIS_OFFICE); }
+	 * leaveStatusRepository.save(leaveStatusOld);
+	 * leaveApplication.setStatus(leaveStatusNew);
+	 * leaveApplicationRepository.save(leaveApplication);
+	 * 
+	 * } return getLeaveApplicationStatus(leaveApplicationId);
+	 * 
+	 * }
+	 */
 }

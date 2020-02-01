@@ -1,7 +1,7 @@
 package org.pstcl.portal.leave.mvc.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 import org.pstcl.portal.leave.mvc.model.sequenceUtil.SequenceMarker;
 import org.pstcl.portal.leave.util.GlobalConstants;
@@ -19,9 +19,12 @@ public class LeaveStatus implements SequenceMarker
 {
 	@Id
 	private Integer id;
-	private Integer statusValue;
+	private Integer actionTaken;
 
-	private LocalDateTime statusUpdateTime;
+	private Date actionDateTime;
+	private Date recievedDateTime;
+
+	
 	
 	@DBRef
 	@JsonBackReference
@@ -29,9 +32,7 @@ public class LeaveStatus implements SequenceMarker
 	
 	private String remarks;
 
-	private Boolean recommended;
-	private Boolean withSubstitute;
-
+	
 
 	@DBRef
 	private Employee markedTo;
@@ -39,17 +40,35 @@ public class LeaveStatus implements SequenceMarker
 	@DBRef
 	private LeaveStatus previousStatus;
 
-	public static LeaveStatus LeaveStatusForwarded(LeaveApplication leaveApplication,LeaveStatus previousLeaveStatus,Employee employeeMarkedTo) {
+	
+	public static LeaveStatus LeaveStatusApproved(LeaveApplication leaveApplication,LeaveStatus previousLeaveStatus,LeaveStatus valuesFromUI) {
 		LeaveStatus leaveStatus = LeaveStatusFactory(leaveApplication);
-		leaveStatus.statusValue=GlobalConstants.STATUS_VALUE_PENDING_WITH_THIS_OFFICE;
+		leaveStatus.actionDateTime=new Date(System.currentTimeMillis());
+
+		leaveStatus.actionTaken=GlobalConstants.STATUS_VALUE_APPROVED;
 		leaveStatus.previousStatus=previousLeaveStatus;
-		leaveStatus.markedTo=employeeMarkedTo;
+		leaveStatus.markedTo=leaveApplication.getEmployee();
+		leaveStatus.remarks=valuesFromUI.remarks;
 		return leaveStatus;
 	}
 	
+	public static LeaveStatus LeaveStatusForwarded(LeaveApplication leaveApplication,LeaveStatus previousLeaveStatus,LeaveStatus valuesFromUI) {
+		LeaveStatus leaveStatus = LeaveStatusFactory(leaveApplication);
+		leaveStatus.actionDateTime=new Date(System.currentTimeMillis());
+
+		leaveStatus.actionTaken=GlobalConstants.STATUS_VALUE_PENDING_WITH_THIS_OFFICE;
+		leaveStatus.previousStatus=previousLeaveStatus;
+		leaveStatus.markedTo=valuesFromUI.markedTo;
+		return leaveStatus;
+	}
+	
+	
+	
 	public static LeaveStatus LeaveStatusSaved(LeaveApplication leaveApplication) {
 		LeaveStatus leaveStatus = LeaveStatusFactory(leaveApplication);
-		leaveStatus.statusValue=GlobalConstants.STATUS_VALUE_SAVED;
+		leaveStatus.actionDateTime=new Date(System.currentTimeMillis());
+
+		leaveStatus.actionTaken=GlobalConstants.STATUS_VALUE_SAVED;
 		leaveStatus.previousStatus=null;
 		leaveStatus.markedTo=leaveApplication.getEmployee();
 		return leaveStatus;
@@ -57,7 +76,9 @@ public class LeaveStatus implements SequenceMarker
 	
 	public static LeaveStatus LeaveStatusUpdated(LeaveApplication leaveApplication,LeaveStatus previousLeaveStatus) {
 		LeaveStatus leaveStatus = LeaveStatusFactory(leaveApplication);
-		leaveStatus.statusValue=GlobalConstants.STATUS_VALUE_UPDATED;
+		leaveStatus.actionDateTime=new Date(System.currentTimeMillis());
+
+		leaveStatus.actionTaken=GlobalConstants.STATUS_VALUE_UPDATED;
 		leaveStatus.previousStatus=previousLeaveStatus;
 		leaveStatus.markedTo=leaveApplication.getEmployee();
 		return leaveStatus;
@@ -67,7 +88,8 @@ public class LeaveStatus implements SequenceMarker
 		LeaveStatus leaveStatus=new LeaveStatus();
 		leaveStatus.leaveApplication=leaveApplication;
 		
-		leaveStatus.statusUpdateTime=LocalDateTime.now();
+		leaveStatus.actionDateTime=new Date(System.currentTimeMillis());
+		leaveStatus.recievedDateTime=new Date(System.currentTimeMillis());
 		
 		return leaveStatus;
 	}

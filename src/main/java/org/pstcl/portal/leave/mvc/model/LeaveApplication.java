@@ -113,7 +113,21 @@ public class LeaveApplication {
 	@Setter	
 	@JsonManagedReference 
 	@DBRef
-	private LeaveStatus status;
+	private LeaveStatus latestStatus;
+
+	@Getter
+	@Setter	
+	@JsonManagedReference 
+	@DBRef
+	private LeaveStatus recommendationStatus;
+
+
+
+	@Getter
+	@Setter	
+	@JsonManagedReference 
+	@DBRef
+	private LeaveStatus approvalStatus;
 
 
 
